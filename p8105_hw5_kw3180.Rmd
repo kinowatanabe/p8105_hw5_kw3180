@@ -5,6 +5,7 @@ date: "2025-11-14"
 output: github_document
 ---
 
+# Load library and set theme
 
 ```{r}
 library(tidyverse)
@@ -30,9 +31,12 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 # Problem 2
+
   * `n_subj` is # of subjects
   * `mu` is the true mean
   * `sigma` is the true sd
+
+Generate 5000 datasets from the model x ~ Normal [ mu, sigma ] for mu = {0:6}
 
 ```{r}
 sim_mean_pval = function(mu, n_subj = 30, sigma = 5) {
@@ -59,7 +63,7 @@ sim_results_df =
 
 sim_results <- map_dfr(1:5000, ~ sim_mean_pval(n_subj  = 30, mu = 0, sigma = 5))
 
-# Plot power vs true μ
+### Plot power vs true μ
 
 ```{r}
 power_df <- sim_results_df |>
@@ -78,6 +82,14 @@ power_df |>
     theme(legend.position = "bottom")
 ```
 
+* Power is the probability of rejecting the null when the alternative hypothesis is true. As the true mean (mu) increases, the effect size increases, and the power increases (proportional association). It is easier to detect larger effect sizes, so the power is greater.
+
+
+### Plot mu-hat vs mu and mu-hat in samples for which the null was rejected vs mu
+
+  * `mu` is the true mean
+  * `mu_hat` is the estimated mean
+  
 ```{r}
 estimates_df <- sim_results_df |>
   group_by(mu) |>
@@ -89,20 +101,22 @@ estimates_df <- sim_results_df |>
 ```
 
 ```{r}
-
+mu_plot <-
   ggplot(estimates_df, aes(x = mu)) +
-    geom_line(aes(y = mean_mu_hat, color = "All simulations"), size = 1.2) +
+    geom_line(aes(y = mean_mu_hat, color = "All simulations")) +
     geom_point(aes(y = mean_mu_hat, color = "All simulations"), size = 2) +
-    geom_line(aes(y = mean_mu_hat_reject, color = "Rejected H0 only"), size = 1.2) +
+    geom_line(aes(y = mean_mu_hat_reject, color = "Rejected H0 only")) +
     geom_point(aes(y = mean_mu_hat_reject, color = "Rejected H0 only"), size = 2) +
-    scale_color_manual(values = c("black", "red")) +
     labs(
-      title = "Average Sample Mean (μ̂) vs True μ",
+      title = "Average Estimated Mean (μ-hat) vs True μ",
       x = "True mean (μ)",
-      y = "Average μ̂",
+      y = "Average Estimated μ-hat",
       color = "Simulation type"
     ) +
-    theme_minimal()
+    theme(legend.position = "bottom")
+
+mu_plot
 
 ```
 
+* The purple "all simulations" line is the average estimated mean across all simulations, which is closer to the true mean `mu`. This makes sense, since it takes into account of simulations that rejected and failed the rejected the null. The effect size is unbiased compared to the underlying population mean. The yellow line with the average estimated mean for rejected nulls is overestimated from the true mean, particularly when `mu` is small, as the means are among simulations with statistically significant differences. For small `mu`, significanct differences between true and estimated mean can occur by chance.
