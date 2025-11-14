@@ -82,7 +82,7 @@ power_df |>
     theme(legend.position = "bottom")
 ```
 
-* Power is the probability of rejecting the null when the alternative hypothesis is true. As the true mean (mu) increases, the effect size increases, and the power increases (proportional association). It is easier to detect larger effect sizes, so the power is greater.
+* Power is the probability of rejecting the null when the alternative hypothesis is true. As the true mean (mu) increases, the effect size increases, and the power increases (proportional association). It is easier to detect larger effect sizes, so the power is greater. When the true mean reaches around 4, the power plateaus. 
 
 
 ### Plot mu-hat vs mu and mu-hat in samples for which the null was rejected vs mu
@@ -119,4 +119,9 @@ mu_plot
 
 ```
 
-* The purple "all simulations" line is the average estimated mean across all simulations, which is closer to the true mean `mu`. This makes sense, since it takes into account of simulations that rejected and failed the rejected the null. The effect size is unbiased compared to the underlying population mean. The yellow line with the average estimated mean for rejected nulls is overestimated from the true mean, particularly when `mu` is small, as the means are among simulations with statistically significant differences. For small `mu`, significanct differences between true and estimated mean can occur by chance.
+* The purple "all simulations" line is the average estimated mean across all simulations, which is closer to the true mean `mu`. This makes sense, since it takes into account of simulations that rejected and failed the rejected the null. The effect size is unbiased compared to the underlying population mean. The yellow line with the average estimated mean for rejected nulls is overestimated from the true mean, particularly when `mu` is small, as the means are among simulations with statistically significant differences. For small `mu`, significant differences between true and estimated mean can occur by chance.
+
+
+# Problem 3
+
+
