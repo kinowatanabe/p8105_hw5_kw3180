@@ -4,3 +4,41 @@ author: "Kino Watanabe"
 date: "2025-11-14"
 output: github_document
 ---
+
+
+```{r}
+library(tidyverse)
+library(broom)
+
+```
+# Problem 2
+  * `n_subj` is # of subjects
+  * `mu` is the true mean
+  * `sigma` is the true sd
+
+```{r}
+sim_mean_pval = function(mu, n_subj = 30, sigma = 5) {
+  
+  sim_data = tibble(
+    x = rnorm(n_subj, mean = mu, sd = sigma)) |> 
+     summarize(
+      mu_hat = mean(x),
+      p_value = t.test(x, mu = 0) |> tidy() |> pull(p.value),
+      reject = p_value < 0.05
+    )
+}
+
+sim_results_df = 
+  expand_grid(
+    mu = 0:6,
+    iter = 1:5000
+  ) |> 
+  mutate(
+    estimate_df = map(mu, ~ sim_mean_pval(.x, n_subj = 30, sigma = 5))
+  ) |> 
+  unnest(estimate_df)
+```
+
+sim_results <- map_dfr(1:5000, ~ sim_mean_pval(n_subj  = 30, mu = 0, sigma = 5))
+
+
