@@ -1,0 +1,6 @@
+---
+title: "p8105_hw5_kw3180"
+author: "Kino Watanabe"
+date: "2025-11-14"
+output: github_document
+---
