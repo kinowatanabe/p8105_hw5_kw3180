@@ -124,4 +124,127 @@ mu_plot
 
 # Problem 3
 
+```{r}
+
+raw_homicide_df =
+  read_csv("data-homicides-master/homicide-data.csv",
+           na = c("NA", ".","")
+  )
+
+```
+
+* **Describe the raw data**: There are `r nrow(raw_homicide_df)` observations and `r ncol(raw_homicide_df)` variables. There are important variables about victim personal information (`victim_last`, `victim_first`, `victim_age`, `victim_sex`) and incident location/specifics (`city`, `state`, `lat`, `lon`, `reported_date`).
+
+
+```{r}
+homicide_df <- raw_homicide_df |>   
+  janitor::clean_names() |> 
+  mutate(
+   state = case_match(state,
+             "wI" ~ "WI",
+             .default = state),
+   city_state = str_c(city, ", ", state)
+  ) |> 
+  filter(city_state != "Tulsa, AL")
+
+unsolved_table <- homicide_df |> 
+  group_by(city_state) |> 
+  summarize(
+    total_homicides = n(),
+    unsolved_homicides = sum(disposition %in% 
+                               c("Closed without arrest", "Open/No arrest"), 
+                             na.rm = TRUE), .groups = "drop"
+  ) |> 
+  knitr::kable()
+
+
+
+###### delete after finishing -- checking data
+homicide_df |> 
+  count(victim_age) |> 
+  arrange(victim_age)
+
+homicide_df |> 
+  distinct(city)
+
+
+homicide_df |>
+  ggplot(aes(x = victim_age)) +
+  geom_histogram(binwidth = 1) +
+  labs(title = "Distribution of Victim Ages", x = "Age", y = "Count")
+
+# There are 0-102 yo?
+
+homicide_df |> 
+  count(victim_race) |> 
+  arrange(victim_race)
+
+
+homicide_df |> 
+  count(victim_sex) |> 
+  arrange(victim_sex)
+
+homicide_df |> 
+  count(city_state) |> 
+  arrange(city_state)
+
+
+# no tulsa, AL??????
+
+homicide_df |> 
+  count(disposition) |> 
+  arrange(disposition)
+```
+
+
+### Baltimore
+
+```{r}
+baltimore_df <- homicide_df |>
+  filter(city_state == "Baltimore, MD") |>
+  summarize(
+    total_homicides = n(),
+    unsolved_homicides = sum(disposition %in% 
+                               c("Closed without arrest", "Open/No arrest"), na.rm = TRUE)
+  ) |>
+  mutate(
+    prop_test = list(prop.test(unsolved_homicides, total_homicides)))
+                     
+baltimore_est <- baltimore_df |>
+  mutate(tidy = purrr::map(prop_test, broom::tidy)) |>
+  tidyr::unnest(tidy) |>
+  select(estimate, conf.low, conf.high)
+ 
+```
+
+### All cities 
+
+### Make a function: estimate the proportion of homicides that are unsolved with prop_test
+
+```{r}
+unsolved_prop_test <- function(unsolved_homicides, total_homicides) {
+  prop.test(unsolved_homicides, total_homicides) |>
+    tidy() |>
+    select(estimate, conf.low, conf.high)
+}
+
+# Summarize total and unsolved homicides per city
+city_summary <- homicide_df |>
+  group_by(city_state) |>
+  summarize(
+    total_homicides = n(),
+    unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest")),
+    .groups = "drop"
+  )
+
+# Run prop.test for each city using map2() in a tidy pipeline
+city_results <- city_summary |>
+  mutate(
+    prop_test = map2(unsolved_homicides, total_homicides, unsolved_prop_test)
+  ) |>
+  unnest(prop_test) 
+
+city_results
+```
+
 
