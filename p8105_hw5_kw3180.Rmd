@@ -120,7 +120,7 @@ mu_plot
 
 ```
 
-* The purple "all simulations" line is the average estimated mean across all simulations, which is closer to the true mean `mu`. This makes sense, since it takes into account of simulations that rejected and failed the rejected the null. The effect size is unbiased compared to the underlying population mean. The yellow line with the average estimated mean for rejected nulls is overestimated from the true mean, particularly when `mu` is small, as the means are among simulations with statistically significant differences. For small `mu`, significant differences between true and estimated mean can occur by chance.
+* The sample average of `mu`across tests for which the null is rejected **isn't** approximately equal to the true value of `mu`. The purple "all simulations" line is the average estimated mean across all simulations, which is closer to the true mean `mu`. This makes sense, since it takes into account of simulations that rejected and failed the rejected the null. The effect size is unbiased compared to the underlying population mean. The yellow line with the average estimated mean for rejected nulls is overestimated from the true mean, particularly when `mu` is small, as the means are among simulations with statistically significant differences. For small `mu`, significant differences between true and estimated mean can occur by chance, so the mean estimate among rejected nulls is inflated.
 
 
 # Problem 3
@@ -164,50 +164,6 @@ unsolved_table |>
 
 
 * The most total homicides were in Chicago, IL; Philadelphia, PA; and Houston, TX. The most unsolved homicides were in  Chicago, IL; Baltimore, MD; and Houston, TX.
-
-###### delete after finishing -- checking data
-homicide_df |> 
-  count(victim_age) |> 
-  arrange(victim_age)
-  
-  
-  # to describe some parts of the data
-  
-homicide_df |> 
-  count(victim_sex) |> 
-  arrange(victim_sex)
-  
-  
-homicide_df |> 
-  count(victim_sex) |> 
-  arrange(victim_sex)
-
-homicide_df |> 
-  distinct(city)
-
-
-homicide_df |>
-  ggplot(aes(x = victim_age)) +
-  geom_histogram(binwidth = 1) +
-  labs(title = "Distribution of Victim Ages", x = "Age", y = "Count")
-
-# There are 0-102 yo?
-
-homicide_df |> 
-  count(victim_race) |> 
-  arrange(victim_race)
-
-
-homicide_df |> 
-  count(city_state) |> 
-  arrange(city_state)
-
-
-# no tulsa, AL??????
-
-homicide_df |> 
-  count(disposition) |> 
-  arrange(disposition)
 
 
 ### Baltimore
@@ -271,12 +227,15 @@ city_results <- city_results |>
 ggplot(city_results, aes(x = city_state, y = estimate)) +
   geom_point(size = 2) +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, color = "darkgray") +
-  coord_flip() + # Flip axes so city names are readable
   labs(
     title = "Estimated Proportion of Unsolved Homicides by City",
     x = "City, State",
     y = "Estimated Proportion of Unsolved Homicides",
     caption = "The error bars are based on the upper and lower limits"
   ) +
-  theme(legend.position = "bottom")
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    legend.position = "bottom"
+  )
+
 ```
